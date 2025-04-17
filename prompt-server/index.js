@@ -21,7 +21,6 @@ let data = {
       isFavorite: false,
       version: 1,
       avatar: 'Book',
-      bgColor: '#E9D5FF',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }

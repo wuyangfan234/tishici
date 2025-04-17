@@ -2,18 +2,16 @@ import React, { useState, useEffect, useCallback, useRef, useTransition, memo } 
 import { useStore } from '../store';
 // 导入所有需要的图标
 import {
-  Star, Folder, Tag as TagIcon, Save, Trash2, X, Palette, Smile, Check, Copy, ArrowLeft,
-  Gem, Bot, Brain, Sparkles, Book, Lightbulb, Heart, LucideIcon // 添加缺少的图标导入
+  Bookmark, Folder, Tag as TagIcon, Save, Trash2, X, Check, Copy, ArrowLeft,
+  Gem, Bot, Brain, Sparkles, Book, Lightbulb, Heart, MessageCircle, Zap, Code, Coffee, 
+  PenTool, KeyRound, Rocket, FlaskConical, Camera, Music, Award, Gift, Globe, Briefcase,
+  Smile, LucideIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
-import { IconSelector } from './IconSelector'; // 假设 IconSelector 组件存在
-import { ColorSelector } from './ColorSelector'; // 假设 ColorSelector 组件存在
-// 导入 CodeMirror 相关模块
+import { IconSelector } from './IconSelector';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
-// 移除oneDark主题，改为使用自定义样式
-// import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView } from '@codemirror/view';
 import { useDeferredValue } from 'react';
 
@@ -82,36 +80,24 @@ const IconMap: Record<string, React.ComponentType<any>> = {
   Sparkles,
   Book,
   Lightbulb,
-  Star,
+  Star: Heart,
   Heart,
-  Smile, // 如果 Smile 也需要映射
-  // 可以根据需要添加更多图标
+  Smile: Smile,
+  MessageCircle,
+  Zap,
+  Code,
+  Coffee,
+  PenTool,
+  KeyRound,
+  Rocket,
+  FlaskConical,
+  Camera,
+  Music,
+  Award,
+  Gift,
+  Globe,
+  Briefcase
 };
-
-
-// 可用图标列表 (可能用于 IconSelector 组件)
-const availableIcons = [
-  { name: 'Gem', component: Gem },
-  { name: 'Bot', component: Bot },
-  { name: 'Brain', component: Brain },
-  { name: 'Sparkles', component: Sparkles },
-  { name: 'Book', component: Book },
-  { name: 'Lightbulb', component: Lightbulb },
-  { name: 'Star', component: Star },
-  { name: 'Heart', component: Heart },
-];
-
-// 可用颜色列表 (可能用于 ColorSelector 组件)
-const availableColors = [
-  '#E9D5FF', // 淡紫色
-  '#DBEAFE', // 淡蓝色
-  '#D1FAE5', // 淡绿色
-  '#FEF3C7', // 淡黄色
-  '#FEE2E2', // 淡红色
-  '#E5E7EB', // 淡灰色
-  '#FCE7F3', // 淡粉色
-];
-
 
 // 使用memo包装CodeMirror组件避免不必要的重渲染
 const MemoizedCodeMirror = memo(CodeMirror);
@@ -128,7 +114,7 @@ function PromptDetailComponent() {
     setSelectedPromptId,
     updatePrompt,
     toggleFavorite,
-    deletePrompt, // 添加 deletePrompt
+    deletePrompt,
   } = useStore();
 
   const prompt = prompts.find((p) => p.id === selectedPromptId);
@@ -139,9 +125,7 @@ function PromptDetailComponent() {
   const [selectedFolder, setSelectedFolder] = useState<FolderIdType>(prompt?.folderId || null);
   const [selectedTags, setSelectedTags] = useState<string[]>(prompt?.tags || []);
   const [selectedIcon, setSelectedIcon] = useState(prompt?.avatar || 'Book');
-  const [selectedColor, setSelectedColor] = useState(prompt?.bgColor || '#E9D5FF');
   const [isIconSelectorOpen, setIsIconSelectorOpen] = useState(false);
-  const [isColorSelectorOpen, setIsColorSelectorOpen] = useState(false); // 添加颜色选择器状态
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
   const [showSavedIndicator, setShowSavedIndicator] = useState(false);
   const [copiedContent, setCopiedContent] = useState(false);
@@ -156,7 +140,6 @@ function PromptDetailComponent() {
     folderId: FolderIdType;
     tags: string[];
     avatar: string;
-    bgColor: string;
   }
 
   // 用于记录上次保存的内容，防止无变化时重复保存
@@ -165,8 +148,7 @@ function PromptDetailComponent() {
     content: '',
     folderId: null,
     tags: [] as string[],
-    avatar: '',
-    bgColor: ''
+    avatar: ''
   });
   
   // 添加标志位，标记用户是否正在编辑
@@ -190,8 +172,7 @@ function PromptDetailComponent() {
       content !== lastSavedContentRef.current.content ||
       selectedFolder !== lastSavedContentRef.current.folderId ||
       JSON.stringify(selectedTags) !== JSON.stringify(lastSavedContentRef.current.tags) ||
-      selectedIcon !== lastSavedContentRef.current.avatar ||
-      selectedColor !== lastSavedContentRef.current.bgColor;
+      selectedIcon !== lastSavedContentRef.current.avatar;
     
     // 如果内容没有变化，不保存
     if (!hasChanged) {
@@ -208,8 +189,7 @@ function PromptDetailComponent() {
           content,
           folderId: selectedFolder as FolderIdType,
           tags: [...selectedTags],
-          avatar: selectedIcon,
-          bgColor: selectedColor
+          avatar: selectedIcon
         };
         
         updatePrompt(prompt.id, {
@@ -218,7 +198,6 @@ function PromptDetailComponent() {
           folderId: selectedFolder,
           tags: selectedTags,
           avatar: selectedIcon,
-          bgColor: selectedColor,
         });
 
         // 显示保存成功指示器
@@ -228,7 +207,7 @@ function PromptDetailComponent() {
         console.log('保存到服务器成功');
       });
     }, 800); // 增加延迟时间以减少视觉刷新效果
-  }, [prompt, title, content, selectedFolder, selectedTags, selectedIcon, selectedColor, updatePrompt]);
+  }, [prompt, title, content, selectedFolder, selectedTags, selectedIcon, updatePrompt]);
 
   // 当用户开始输入或更改内容时
   const handleContentChange = useCallback((value: string) => {
@@ -252,7 +231,6 @@ function PromptDetailComponent() {
       setSelectedFolder(prompt.folderId as FolderIdType);
       setSelectedTags(prompt.tags || []);
       setSelectedIcon(prompt.avatar || 'Book');
-      setSelectedColor(prompt.bgColor || '#E9D5FF');
       
       // 设置上次保存的内容为当前prompt的值
       lastSavedContentRef.current = {
@@ -260,8 +238,7 @@ function PromptDetailComponent() {
         content: prompt.content,
         folderId: prompt.folderId as FolderIdType,
         tags: [...(prompt.tags || [])],
-        avatar: prompt.avatar || 'Book',
-        bgColor: prompt.bgColor || '#E9D5FF'
+        avatar: prompt.avatar || 'Book'
       };
       
       // 重置编辑状态
@@ -273,7 +250,6 @@ function PromptDetailComponent() {
       setSelectedFolder(null);
       setSelectedTags([]);
       setSelectedIcon('Book');
-      setSelectedColor('#E9D5FF');
     }
     
     // 重置状态
@@ -376,7 +352,7 @@ function PromptDetailComponent() {
           {/* 工具栏按钮 */}
           <div className="flex items-center space-x-1">
             {/* 图标选择器 */}
-            <div className="relative">
+            <div className="relative z-20">
               <button 
                 onClick={() => setIsIconSelectorOpen(!isIconSelectorOpen)} 
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -384,14 +360,13 @@ function PromptDetailComponent() {
               >
                 {React.createElement(IconMap[selectedIcon] || Book, { 
                   size: 18, 
-                  color: selectedColor, 
-                  className: "transition-transform hover:scale-110"
+                  className: "transition-transform hover:scale-110 text-indigo-600"
                 })}
               </button>
               
               {isIconSelectorOpen && (
                 <IconSelector
-                  currentColor={selectedColor}
+                  currentColor="#4F46E5"
                   onSelect={(iconName) => {
                     setSelectedIcon(iconName);
                     setIsIconSelectorOpen(false);
@@ -403,40 +378,16 @@ function PromptDetailComponent() {
               )}
             </div>
             
-            {/* 颜色选择器 */}
-            <div className="relative">
-              <button 
-                onClick={() => setIsColorSelectorOpen(!isColorSelectorOpen)} 
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                title="更改颜色"
-              >
-                <Palette size={18} />
-              </button>
-              
-              {isColorSelectorOpen && (
-                <ColorSelector
-                  currentColor={selectedColor}
-                  onSelect={(color) => {
-                    setSelectedColor(color);
-                    setIsColorSelectorOpen(false);
-                    isEditingRef.current = true;
-                    autoSave();
-                  }}
-                  onClose={() => setIsColorSelectorOpen(false)}
-                />
-              )}
-            </div>
-            
             {/* 收藏按钮 */}
             <button 
               onClick={handleToggleFavorite} 
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               title={prompt.isFavorite ? "取消收藏" : "添加到收藏夹"}
             >
-              <Star 
+              <Bookmark 
                 size={18} 
                 className={clsx(
-                  prompt.isFavorite ? "text-yellow-400 fill-current" : "text-gray-500 hover:text-yellow-400",
+                  prompt.isFavorite ? "text-indigo-500 fill-current" : "text-gray-500 hover:text-indigo-500",
                   "transition-colors"
                 )} 
               />
@@ -678,6 +629,18 @@ function PromptDetailComponent() {
           .is-pending {
             opacity: 0.8;
           }
+          
+          /* 响应式调整 */
+          @media (max-width: 768px) {
+            .editor-container {
+              padding: 10px;
+            }
+            
+            .cm-auto-wrap .cm-content,
+            .cm-auto-wrap .cm-line {
+              font-size: 15px;
+            }
+          }
         `}
       </style>
       <div className="flex-1 overflow-hidden">
@@ -691,7 +654,8 @@ function PromptDetailComponent() {
             style={{ 
               minHeight: "300px",
               maxHeight: 'calc(100vh - 250px)',
-              width: '100%' 
+              width: '100%',
+              boxSizing: 'border-box'
             }}
             placeholder="输入提示词内容..."
           />

@@ -9,7 +9,6 @@ export interface Prompt {
   createdAt: string;
   updatedAt: string;
   avatar?: string;
-  bgColor?: string;
 }
 
 export interface Folder {

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
 import { 
-  Search, Plus, Star, Clock, Tag as TagIcon, Folder, Gem, Bot, Brain, 
+  Search, Plus, Bookmark, Clock, Tag as TagIcon, Folder, Gem, Bot, Brain, 
   Sparkles, Book, Lightbulb, Heart, Grid, List, Filter, Copy, SortAsc, SortDesc,
+  MessageCircle, Zap, Code, Coffee, PenTool, KeyRound, Rocket, 
+  FlaskConical, Camera, Music, Award, Gift, Globe, Briefcase, Smile,
   LucideIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -17,8 +19,23 @@ const IconMap: Record<string, LucideIcon> = {
   Sparkles: Sparkles,
   Book: Book,
   Lightbulb: Lightbulb,
-  Star: Star,
+  Star: Heart,
   Heart: Heart,
+  Smile: Smile,
+  MessageCircle: MessageCircle,
+  Zap: Zap,
+  Code: Code,
+  Coffee: Coffee,
+  PenTool: PenTool,
+  KeyRound: KeyRound,
+  Rocket: Rocket,
+  FlaskConical: FlaskConical,
+  Camera: Camera,
+  Music: Music,
+  Award: Award,
+  Gift: Gift,
+  Globe: Globe,
+  Briefcase: Briefcase,
 };
 
 export function PromptList() {
@@ -255,8 +272,7 @@ export function PromptList() {
                   <div className="flex items-start space-x-4">
                     {/* 头像区域 */}
                     <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner transition-all duration-300 group-hover:scale-110" 
-                      style={{ backgroundColor: prompt.bgColor || '#E9D5FF' }}
+                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner transition-all duration-300 group-hover:scale-110 bg-indigo-50" 
                     >
                       <IconComponent className="h-6 w-6 text-indigo-700" />
                     </div>
@@ -294,9 +310,9 @@ export function PromptList() {
                             className="p-1 transition-colors"
                             title={prompt.isFavorite ? "取消收藏" : "添加到收藏夹"}
                           >
-                            <Star className={clsx(
+                            <Bookmark className={clsx(
                               "h-4 w-4", 
-                              prompt.isFavorite ? "text-yellow-400 fill-current" : "text-gray-400 hover:text-yellow-400"
+                              prompt.isFavorite ? "text-indigo-500 fill-current" : "text-gray-400 hover:text-indigo-500"
                             )} />
                           </button>
                         </div>
@@ -383,8 +399,7 @@ export function PromptList() {
                   <div className="flex items-center space-x-3">
                     {/* 图标 */}
                     <div 
-                      className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" 
-                      style={{ backgroundColor: prompt.bgColor || '#E9D5FF' }}
+                      className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-indigo-50" 
                     >
                       <IconComponent className="h-5 w-5 text-indigo-700" />
                     </div>
@@ -418,9 +433,9 @@ export function PromptList() {
                             className="p-1 transition-colors"
                             title={prompt.isFavorite ? "取消收藏" : "添加到收藏夹"}
                           >
-                            <Star className={clsx(
+                            <Bookmark className={clsx(
                               "h-4 w-4", 
-                              prompt.isFavorite ? "text-yellow-400 fill-current" : "text-gray-400 hover:text-yellow-400"
+                              prompt.isFavorite ? "text-indigo-500 fill-current" : "text-gray-400 hover:text-indigo-500"
                             )} />
                           </button>
                         </div>

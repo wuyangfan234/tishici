@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Folder, Star, Tag as TagIcon, Plus, Trash2, Edit2, ArrowLeft, Search, X, Check } from 'lucide-react';
+import { Folder, Bookmark, Tag as TagIcon, Plus, Trash2, Edit2, ArrowLeft, Search, X, Check } from 'lucide-react';
 import clsx from 'clsx';
 import { EmptyState } from './EmptyState';
 
@@ -28,20 +28,40 @@ export function Folders() {
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
+  const [newTagName, setNewTagName] = useState('');
+  const [isAddingFolder, setIsAddingFolder] = useState(false);
+  const [isAddingTag, setIsAddingTag] = useState(false);
   
   // 统计
   const favoriteCount = prompts.filter(p => p.isFavorite).length;
   
   // 添加文件夹
   const handleAddFolder = () => {
-    const name = prompt('输入文件夹名称');
-    if (name) addFolder(name);
+    setIsAddingFolder(true);
+  };
+
+  // 确认添加文件夹
+  const confirmAddFolder = () => {
+    if (newFolderName.trim()) {
+      addFolder(newFolderName.trim());
+      setNewFolderName('');
+      setIsAddingFolder(false);
+    }
   };
 
   // 添加标签
   const handleAddTag = () => {
-    const name = prompt('输入标签名称');
-    if (name) addTag(name);
+    setIsAddingTag(true);
+  };
+
+  // 确认添加标签
+  const confirmAddTag = () => {
+    if (newTagName.trim()) {
+      addTag(newTagName.trim());
+      setNewTagName('');
+      setIsAddingTag(false);
+    }
   };
   
   // 开始编辑文件夹
@@ -79,6 +99,10 @@ export function Folders() {
     setEditingFolderId(null);
     setEditingTagId(null);
     setEditName('');
+    setIsAddingFolder(false);
+    setIsAddingTag(false);
+    setNewFolderName('');
+    setNewTagName('');
   };
   
   // 清除所有选择，返回完整列表
@@ -117,7 +141,7 @@ export function Folders() {
           onClick={() => setShowFavorites(!showFavorites)}
         >
           <div className="flex items-center">
-            <Star className="h-5 w-5 mr-3" />
+            <Bookmark className="h-5 w-5 mr-3" />
             <span className="font-medium">收藏夹</span>
           </div>
           {favoriteCount > 0 && (
@@ -142,8 +166,37 @@ export function Folders() {
               <Plus className="h-4 w-4" />
             </button>
           </div>
+
+          {/* 添加新文件夹输入框 */}
+          {isAddingFolder && (
+            <div className="mb-2 flex items-center space-x-2 bg-gray-50 p-2 rounded-lg">
+              <Folder className="h-5 w-5 text-gray-500 flex-shrink-0" />
+              <input
+                type="text"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                placeholder="新建文件夹"
+                className="flex-1 text-sm border-none bg-transparent focus:ring-0"
+                autoFocus
+              />
+              <button 
+                onClick={confirmAddFolder}
+                className="p-1 text-green-600 hover:bg-green-50 rounded-full"
+                title="确认"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={cancelEdit}
+                className="p-1 text-red-600 hover:bg-red-50 rounded-full"
+                title="取消"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           
-          {folders.length === 0 ? (
+          {folders.length === 0 && !isAddingFolder ? (
             <EmptyState 
               type="folder" 
               action={handleAddFolder}
@@ -161,27 +214,26 @@ export function Folders() {
                 )}
               >
                 {editingFolderId === folder.id ? (
-                  <div className="flex items-center p-2">
+                  <div className="flex items-center px-4 py-3">
+                    <Folder className="h-5 w-5 mr-3 flex-shrink-0" />
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="flex-1 border border-indigo-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="flex-1 text-sm border-none bg-transparent focus:ring-0"
                       autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') confirmEditFolder();
-                        if (e.key === 'Escape') cancelEdit();
-                      }}
                     />
                     <button 
                       onClick={confirmEditFolder}
-                      className="ml-1 p-1 text-green-600 hover:bg-green-50 rounded"
+                      className="p-1 text-green-600 hover:bg-green-50 rounded-full"
+                      title="确认"
                     >
                       <Check className="h-4 w-4" />
                     </button>
                     <button 
                       onClick={cancelEdit}
-                      className="ml-1 p-1 text-gray-600 hover:bg-gray-50 rounded"
+                      className="p-1 text-red-600 hover:bg-red-50 rounded-full"
+                      title="取消"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -240,7 +292,36 @@ export function Folders() {
             </button>
           </div>
           
-          {tags.length === 0 ? (
+          {/* 添加新标签输入框 */}
+          {isAddingTag && (
+            <div className="mb-2 flex items-center space-x-2 bg-gray-50 p-2 rounded-lg">
+              <TagIcon className="h-5 w-5 text-gray-500 flex-shrink-0" />
+              <input
+                type="text"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="新建标签"
+                className="flex-1 text-sm border-none bg-transparent focus:ring-0"
+                autoFocus
+              />
+              <button 
+                onClick={confirmAddTag}
+                className="p-1 text-green-600 hover:bg-green-50 rounded-full"
+                title="确认"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={cancelEdit}
+                className="p-1 text-red-600 hover:bg-red-50 rounded-full"
+                title="取消"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          
+          {tags.length === 0 && !isAddingTag ? (
             <EmptyState 
               type="tag" 
               action={handleAddTag}
@@ -258,27 +339,26 @@ export function Folders() {
                 )}
               >
                 {editingTagId === tag.id ? (
-                  <div className="flex items-center p-2">
+                  <div className="flex items-center px-4 py-3">
+                    <TagIcon className="h-5 w-5 mr-3 flex-shrink-0" />
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="flex-1 border border-indigo-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="flex-1 text-sm border-none bg-transparent focus:ring-0"
                       autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') confirmEditTag();
-                        if (e.key === 'Escape') cancelEdit();
-                      }}
                     />
                     <button 
                       onClick={confirmEditTag}
-                      className="ml-1 p-1 text-green-600 hover:bg-green-50 rounded"
+                      className="p-1 text-green-600 hover:bg-green-50 rounded-full"
+                      title="确认"
                     >
                       <Check className="h-4 w-4" />
                     </button>
                     <button 
                       onClick={cancelEdit}
-                      className="ml-1 p-1 text-gray-600 hover:bg-gray-50 rounded"
+                      className="p-1 text-red-600 hover:bg-red-50 rounded-full"
+                      title="取消"
                     >
                       <X className="h-4 w-4" />
                     </button>

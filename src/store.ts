@@ -161,20 +161,19 @@ export const useStore = create<Store>((set, get) => ({
   setShowFavorites: (show) => set({ showFavorites: show, selectedFolderId: null, selectedTagId: null }),
   setSearchQuery: (query) => set({ searchQuery: query }),
 
-  addPrompt: async (promptData) => {
+  addPrompt: async (data) => {
     set({ isLoading: true, error: null });
     try {
-      // 1. 调用 API 创建 Prompt，后端应返回创建好的完整 Prompt 对象（包含 id, timestamps 等）
       const newPrompt = await createPromptAPI({
-        ...promptData,
-        avatar: promptData.avatar || 'Book', // 可以在后端处理默认值
-        bgColor: promptData.bgColor || '#E9D5FF', // 可以在后端处理默认值
-        isFavorite: promptData.isFavorite || false, // 确保传递
+        ...data,
+        version: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       });
-      // 2. 使用服务器返回的数据更新本地状态
       set((state) => ({
-        prompts: [...state.prompts, newPrompt],
-        isLoading: false,
+        prompts: [newPrompt, ...state.prompts],
+        selectedPromptId: newPrompt.id,
+        isLoading: false
       }));
     } catch (error) {
       set({
