@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Heart, ExternalLink, Info, Github, Upload } from 'lucide-react';
+import { Heart, ExternalLink, Info, Github } from 'lucide-react';
 import { AboutModal } from './AboutModal';
-import { GitHubUploadModal } from './GitHubUploadModal';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
   const appVersion = "1.0.1"; // 在实际应用中，这可以从环境变量或配置文件中获取
   const [showAboutModal, setShowAboutModal] = useState(false);
-  const [showGitHubModal, setShowGitHubModal] = useState(false);
   
   return (
     <>
@@ -34,15 +32,6 @@ export function Footer() {
               </a>
               
               <button 
-                onClick={() => setShowGitHubModal(true)}
-                className="text-blue-100 hover:text-white transition-colors flex items-center bg-transparent border-none cursor-pointer"
-                title="上传至GitHub"
-              >
-                <Upload className="h-3.5 w-3.5 mr-1" />
-                <span>上传代码</span>
-              </button>
-              
-              <button 
                 onClick={() => setShowAboutModal(true)}
                 className="text-blue-100 hover:text-white transition-colors flex items-center bg-transparent border-none cursor-pointer"
                 title="了解更多"
@@ -62,7 +51,6 @@ export function Footer() {
       </footer>
       
       <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
-      <GitHubUploadModal isOpen={showGitHubModal} onClose={() => setShowGitHubModal(false)} />
     </>
   );
 } 
