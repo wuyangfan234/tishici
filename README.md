@@ -41,7 +41,7 @@ npm run start
 
 ## 截图
 
-[![提示词管理系统截图](https://github.com/wuyangfan234/tishici#:~:text=iShot_2025%2D04%2D17_10.18.01.png)]
+[![提示词管理系统截图]((https://github.com/wuyangfan234/tishici/blob/main/iShot_2025-04-17_10.18.01.png))]
 
 ## 目录结构
 
